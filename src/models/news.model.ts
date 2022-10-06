@@ -24,11 +24,18 @@ export class News extends Entity {
   content: string;
 
   @property({
+    type: 'date',
+    default: () => new Date()
+  })
+  createdAt?: string;
+
+  @property({
     type: 'number',
     id: true,
     generated: true,
   })
   id?: number;
+
 
 
   constructor(data?: Partial<News>) {

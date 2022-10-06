@@ -24,6 +24,12 @@ export class Testimonials extends Entity {
   image: string;
 
   @property({
+    type: 'date',
+    default: () => new Date()
+  })
+  createdAt?: string;
+
+  @property({
     type: 'number',
     id: true,
     generated: true,

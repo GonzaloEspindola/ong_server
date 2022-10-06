@@ -54,6 +54,12 @@ export class Organization extends Entity {
   instagram: string;
 
   @property({
+    type: 'date',
+    default: () => new Date()
+  })
+  createdAt?: string;
+
+  @property({
     type: 'number',
     id: true,
     generated: true,

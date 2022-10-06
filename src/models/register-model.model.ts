@@ -32,6 +32,18 @@ export class RegisterModel extends Model {
   })
   roleId: string;
 
+  @property({
+    type: 'string',
+    required: false,
+  })
+  image: string;
+
+  @property({
+    type: 'date',
+    default: () => new Date()
+  })
+  createdAt?: string;
+
 
   constructor(data?: Partial<RegisterModel>) {
     super(data);

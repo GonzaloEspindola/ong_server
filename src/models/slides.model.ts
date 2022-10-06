@@ -24,6 +24,12 @@ export class Slides extends Entity {
   })
   text: string;
 
+  @property({
+    type: 'date',
+    default: () => new Date()
+  })
+  createdAt?: string;
+
 
   constructor(data?: Partial<Slides>) {
     super(data);
