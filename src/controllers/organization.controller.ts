@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Organization} from '../models';
 import {OrganizationRepository} from '../repositories';
@@ -26,6 +21,7 @@ export class OrganizationController {
     public organizationRepository : OrganizationRepository,
   ) {}
 
+  @authenticate('admin')
   @post('/organizations')
   @response(200, {
     description: 'Organization model instance',
@@ -76,6 +72,7 @@ export class OrganizationController {
     return this.organizationRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/organizations')
   @response(200, {
     description: 'Organization PATCH success count',
@@ -111,6 +108,7 @@ export class OrganizationController {
     return this.organizationRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/organizations/{id}')
   @response(204, {
     description: 'Organization PATCH success',
@@ -129,6 +127,7 @@ export class OrganizationController {
     await this.organizationRepository.updateById(id, organization);
   }
 
+  @authenticate('admin')
   @put('/organizations/{id}')
   @response(204, {
     description: 'Organization PUT success',
@@ -140,6 +139,7 @@ export class OrganizationController {
     await this.organizationRepository.replaceById(id, organization);
   }
 
+  @authenticate('admin')
   @del('/organizations/{id}')
   @response(204, {
     description: 'Organization DELETE success',

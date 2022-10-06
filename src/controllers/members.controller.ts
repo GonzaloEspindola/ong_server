@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Members} from '../models';
 import {MembersRepository} from '../repositories';
@@ -26,6 +21,7 @@ export class MembersController {
     public membersRepository : MembersRepository,
   ) {}
 
+  @authenticate('admin')
   @post('/members')
   @response(200, {
     description: 'Members model instance',
@@ -76,6 +72,7 @@ export class MembersController {
     return this.membersRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/members')
   @response(200, {
     description: 'Members PATCH success count',
@@ -111,6 +108,7 @@ export class MembersController {
     return this.membersRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/members/{id}')
   @response(204, {
     description: 'Members PATCH success',
@@ -129,6 +127,7 @@ export class MembersController {
     await this.membersRepository.updateById(id, members);
   }
 
+  @authenticate('admin')
   @put('/members/{id}')
   @response(204, {
     description: 'Members PUT success',
@@ -140,6 +139,7 @@ export class MembersController {
     await this.membersRepository.replaceById(id, members);
   }
 
+  @authenticate('admin')
   @del('/members/{id}')
   @response(204, {
     description: 'Members DELETE success',

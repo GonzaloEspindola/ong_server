@@ -1,4 +1,5 @@
-import {service} from '@loopback/core';
+import {authenticate} from '@loopback/authentication';
+import {inject, service} from '@loopback/core';
 import {
   Count,
   CountSchema,
@@ -9,46 +10,106 @@ import {
 } from '@loopback/repository';
 import {
   del, get,
-  getModelSchemaRef, HttpErrors, param, patch, post, put, requestBody,
-  response
+  getModelSchemaRef, HttpErrors, param, patch, post, put, Request, requestBody,
+  response, RestBindings
 } from '@loopback/rest';
 import {User} from '../models';
+import {Credentials} from '../models/credentials.model';
+import {RegisterModel} from '../models/register-model.model';
 import {UserRepository} from '../repositories';
 import {JwtService} from '../services';
+const bcrypt = require("bcryptjs");
 
-class Credentials {
-  email: string;
-  password: string
-}
-
-export class UserController {
+export class UsersController {
   constructor(
     @repository(UserRepository)
     public userRepository : UserRepository,
     @service(JwtService)
-    public serviceJwt : JwtService,
+    public serviceJwt: JwtService,
+    @inject(RestBindings.Http.REQUEST) private req: Request
   ) {}
 
-  @post('/users/login')
-  @response(200, {
-    description: 'User model instance',
-    content: {'application/json': {schema: getModelSchemaRef(User)}},
-  })
-  async indetify(
-    @requestBody() credentials: Credentials
-  ): Promise<object> {
-    const user = await this.userRepository.findOne({ where: { email: credentials.email, password: credentials.password }});
-
-    if(user) {
-      const token = this.serviceJwt.createJWToken(user);
-      user.password = '';
-      return {
-        user: user,
-        token: token
+  @post('/users/login', {
+    responses: {
+      '200': {
+        description: 'Login of user'
       }
     }
-    else {
-      throw new HttpErrors[401]("User or password incorrect")
+  })
+  async login(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(Credentials)
+        }
+      }
+    }) credentials: Credentials
+  ) : Promise<object>{
+    const user = await this.userRepository.findOne({ where: { email: credentials.email } })
+
+    if(user) {
+      const decodedPassword = await bcrypt.compare(credentials.password, user.password)
+
+      if(decodedPassword) {
+        const tk = this.serviceJwt.createJwtToken(user);
+        return {
+          user: user,
+          token: tk
+        }
+      }else {
+        throw new HttpErrors[401]('Password incorrect')
+      }
+    }else {
+      throw new HttpErrors[401]('User incorrect')
+    }
+  }
+
+  @post('/users/register', {
+    responses: {
+      '200': {
+        description: 'Register user'
+      }
+    }
+  })
+  async register(
+    @requestBody({
+      content: {
+        'application/json': {
+          schema: getModelSchemaRef(RegisterModel)
+        }
+      }
+    }) registerModel: RegisterModel
+  ) : Promise<object>{
+    const user = await this.userRepository.findOne({ where: { email: registerModel.email } })
+    if(user) {
+      throw new HttpErrors[401]('User already exists')
+    } else {
+      const encryptedPassword = bcrypt.hashSync(registerModel.password, 10)
+      registerModel.password = encryptedPassword
+      registerModel.roleId = '1'
+      const newUser = await this.userRepository.create(registerModel)
+
+      const tk = this.serviceJwt.createJwtToken(newUser);
+      return {
+        user: newUser,
+        token: tk
+      }
+    }
+  }
+
+  @get('/users/me', {
+    responses: {
+      '200': {
+        description: 'Profile user'
+      }
+    }
+  })
+  me() : void {
+    const authToken = this.req.headers.authorization;
+    if(authToken) {
+      const token = authToken?.split(' ')[1]
+      const userProfile = this.serviceJwt.verifyToken(token).data
+      return userProfile
     }
   }
 
@@ -81,6 +142,7 @@ export class UserController {
     return this.userRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/users')
   @response(200, {
     description: 'User PATCH success count',
@@ -100,6 +162,7 @@ export class UserController {
     return this.userRepository.updateAll(user, where);
   }
 
+
   @get('/users/{id}')
   @response(200, {
     description: 'User model instance',
@@ -116,6 +179,7 @@ export class UserController {
     return this.userRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/users/{id}')
   @response(204, {
     description: 'User PATCH success',
@@ -134,6 +198,7 @@ export class UserController {
     await this.userRepository.updateById(id, user);
   }
 
+  @authenticate('admin')
   @put('/users/{id}')
   @response(204, {
     description: 'User PUT success',
@@ -145,6 +210,7 @@ export class UserController {
     await this.userRepository.replaceById(id, user);
   }
 
+  @authenticate('admin')
   @del('/users/{id}')
   @response(204, {
     description: 'User DELETE success',

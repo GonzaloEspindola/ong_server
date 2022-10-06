@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Testimonials} from '../models';
 import {TestimonialsRepository} from '../repositories';
@@ -26,6 +21,7 @@ export class TestimonialsController {
     public testimonialsRepository : TestimonialsRepository,
   ) {}
 
+  @authenticate('user')
   @post('/testimonials')
   @response(200, {
     description: 'Testimonials model instance',
@@ -76,6 +72,7 @@ export class TestimonialsController {
     return this.testimonialsRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/testimonials')
   @response(200, {
     description: 'Testimonials PATCH success count',
@@ -111,6 +108,7 @@ export class TestimonialsController {
     return this.testimonialsRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/testimonials/{id}')
   @response(204, {
     description: 'Testimonials PATCH success',
@@ -129,6 +127,7 @@ export class TestimonialsController {
     await this.testimonialsRepository.updateById(id, testimonials);
   }
 
+  @authenticate('admin')
   @put('/testimonials/{id}')
   @response(204, {
     description: 'Testimonials PUT success',
@@ -140,6 +139,7 @@ export class TestimonialsController {
     await this.testimonialsRepository.replaceById(id, testimonials);
   }
 
+  @authenticate('admin')
   @del('/testimonials/{id}')
   @response(204, {
     description: 'Testimonials DELETE success',

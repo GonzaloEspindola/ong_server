@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {News} from '../models';
 import {NewsRepository} from '../repositories';
@@ -26,6 +21,7 @@ export class NewsController {
     public newsRepository : NewsRepository,
   ) {}
 
+  @authenticate('admin')
   @post('/news')
   @response(200, {
     description: 'News model instance',
@@ -76,6 +72,7 @@ export class NewsController {
     return this.newsRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/news')
   @response(200, {
     description: 'News PATCH success count',
@@ -111,6 +108,7 @@ export class NewsController {
     return this.newsRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/news/{id}')
   @response(204, {
     description: 'News PATCH success',
@@ -129,6 +127,7 @@ export class NewsController {
     await this.newsRepository.updateById(id, news);
   }
 
+  @authenticate('admin')
   @put('/news/{id}')
   @response(204, {
     description: 'News PUT success',
@@ -140,6 +139,7 @@ export class NewsController {
     await this.newsRepository.replaceById(id, news);
   }
 
+  @authenticate('admin')
   @del('/news/{id}')
   @response(204, {
     description: 'News DELETE success',

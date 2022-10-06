@@ -1,21 +1,16 @@
+import {authenticate} from '@loopback/authentication';
 import {
   Count,
   CountSchema,
   Filter,
   FilterExcludingWhere,
   repository,
-  Where,
+  Where
 } from '@loopback/repository';
 import {
-  post,
-  param,
-  get,
-  getModelSchemaRef,
-  patch,
-  put,
-  del,
-  requestBody,
-  response,
+  del, get,
+  getModelSchemaRef, param, patch, post, put, requestBody,
+  response
 } from '@loopback/rest';
 import {Slides} from '../models';
 import {SlidesRepository} from '../repositories';
@@ -26,6 +21,7 @@ export class SlidesController {
     public slidesRepository : SlidesRepository,
   ) {}
 
+  @authenticate('admin')
   @post('/slides')
   @response(200, {
     description: 'Slides model instance',
@@ -76,6 +72,7 @@ export class SlidesController {
     return this.slidesRepository.find(filter);
   }
 
+  @authenticate('admin')
   @patch('/slides')
   @response(200, {
     description: 'Slides PATCH success count',
@@ -111,6 +108,7 @@ export class SlidesController {
     return this.slidesRepository.findById(id, filter);
   }
 
+  @authenticate('admin')
   @patch('/slides/{id}')
   @response(204, {
     description: 'Slides PATCH success',
@@ -129,6 +127,7 @@ export class SlidesController {
     await this.slidesRepository.updateById(id, slides);
   }
 
+  @authenticate('admin')
   @put('/slides/{id}')
   @response(204, {
     description: 'Slides PUT success',
@@ -140,6 +139,7 @@ export class SlidesController {
     await this.slidesRepository.replaceById(id, slides);
   }
 
+  @authenticate('admin')
   @del('/slides/{id}')
   @response(204, {
     description: 'Slides DELETE success',

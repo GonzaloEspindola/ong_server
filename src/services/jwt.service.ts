@@ -7,18 +7,23 @@ const jwt = require('jsonwebtoken');
 export class JwtService {
   constructor(/* Add @inject to inject parameters */) {}
 
-  /*
-   * Add service methods here
-   */
-  createJWToken(user: User) {
+  createJwtToken(user: User) {
     const secret = Keys.jwtKey;
-    const token = jwt.sign({
+    const tk = jwt.sign({
       data: {
         id: user.id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        image: user.image,
         email: user.email,
-        rol: user.roleId
+        roleId: user.roleId
       }
-    }, secret)
-    return token;
+    }, secret);
+    return tk;
+  }
+
+  verifyToken(token: string) {
+    const decodedToken = jwt.verify(token, Keys.jwtKey);
+    return decodedToken;
   }
 }
